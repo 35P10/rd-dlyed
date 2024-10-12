@@ -1,3 +1,85 @@
+## Instalar Redis
+Para instalar Redis en Ubuntu, sigue estos pasos:
+
+### 1. **Actualizar el sistema**
+Primero, asegúrate de que tu sistema esté actualizado:
+```bash
+sudo apt update
+sudo apt upgrade
+```
+
+### 2. **Instalar Redis**
+Puedes instalar Redis usando `apt` con el siguiente comando:
+```bash
+sudo apt install redis-server
+```
+
+### 3. **Configurar Redis**
+Una vez instalado, puedes editar la configuración de Redis según tus necesidades. El archivo de configuración se encuentra en:
+```bash
+/etc/redis/redis.conf
+```
+
+Puedes abrirlo con un editor de texto, por ejemplo:
+```bash
+sudo nano /etc/redis/redis.conf
+```
+
+### 4. **Habilitar y arrancar el servicio**
+Después de configurar Redis, habilita y arranca el servicio:
+```bash
+sudo systemctl enable redis
+sudo systemctl start redis
+```
+
+### 5. **Verificar que Redis esté funcionando**
+Puedes verificar que Redis esté funcionando correctamente con el siguiente comando:
+```bash
+redis-cli ping
+```
+Si está funcionando correctamente, deberías recibir la respuesta `PONG`.
+
+### 6. **(Opcional) Prueba de uso**
+Puedes acceder al cliente de Redis para realizar pruebas:
+```bash
+redis-cli
+```
+Una vez dentro, puedes probar comandos como:
+```bash
+set mi_clave "Hola, Redis!"
+get mi_clave
+```
+
+## Instalar Desinstalar
+
+1. **Detener el servicio de Redis** (si está en ejecución):
+   ```bash
+   sudo systemctl stop redis
+   ```
+
+2. **Desinstalar Redis**:
+   Si instalaste Redis usando `apt`, puedes desinstalarlo con:
+   ```bash
+   sudo apt remove redis-server
+   ```
+   O si deseas eliminar también los archivos de configuración:
+   ```bash
+   sudo apt purge redis-server
+   ```
+
+3. **Eliminar dependencias no utilizadas** (opcional):
+   ```bash
+   sudo apt autoremove
+   ```
+
+4. **Verificar que Redis se haya desinstalado**:
+   Puedes comprobar que Redis ya no está instalado con:
+   ```bash
+   redis-cli
+   ```
+
+Si recibes un mensaje de que el comando no se encuentra, significa que la desinstalación fue exitosa.
+
 ## Descripción General del Clúster
 
 ### Número de Nodos:
