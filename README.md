@@ -1,3 +1,19 @@
+## Install AWSCli aarch64
+
+Descarga la AWS CLI correcta para aarch64:
+curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip"
+
+
+Descomprime el archivo descargado:
+unzip awscliv2.zip
+
+Ejecuta el instalador:
+sudo ./aws/install
+
+Verifica la instalación:
+aws --version
+
+
 ## Instalar Redis
 
 Para instalar Redis en Ubuntu, sigue estos pasos:
@@ -40,6 +56,14 @@ Después de configurar Redis, habilita y arranca el servicio:
 ```bash
 sudo systemctl enable redis
 sudo systemctl start redis
+```
+
+```
+sudo nano /etc/hosts
+```
+```
+127.0.0.1   localhost
+127.0.1.1   ip-10-0-131-243
 ```
 
 ### 5. **Verificar que Redis esté funcionando**
@@ -227,6 +251,7 @@ sudo chmod 750 /var/lib/redis/60004 /
    Inicia cada instancia de Redis con su archivo de configuración correspondiente:
 
 
+
 ```
 redis-server /etc/redis/redis-master-01.conf
 redis-server /etc/redis/redis-replica-01.conf
@@ -243,6 +268,10 @@ redis-server /etc/redis/redis-replica-04.conf
 4. Crear el Clúster
 
 Una vez que todos los nodos están funcionando, necesitas crear el clúster usando la herramienta `redis-cli`. Asegúrate de que todos los nodos están activos.
+
+
+redis-cli -h 10.0.143.154 -p 50001
+
 ```
 redis-cli --cluster create 10.0.143.154:50001 10.0.143.154:50002 10.0.143.154:50003 10.0.143.154:50004 10.0.143.154:60001 10.0.143.154:60002 10.0.143.154:60003 10.0.143.154:60004 --cluster-replicas 1
 ```
