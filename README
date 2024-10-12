@@ -1,0 +1,138 @@
+## Descripción General del Clúster
+
+### Número de Nodos:
+El clúster está compuesto por un total de 8 nodos.
+Hay 4 nodos maestros (master) y 4 nodos esclavos (slave).
+Direcciones IP y Puertos:
+
+Todos los nodos están en la misma dirección IP 172.31.20.83 pero están distribuidos en diferentes puertos:
+* Maestros:
+    * 50001: Es un maestro con la capacidad de gestionar la partición de datos 0-4095.
+    * 50002: Es un maestro que gestiona la partición de datos 4096-8191.
+    * 50003: Es un maestro que gestiona la partición de datos 8192-12287.
+    * 50004: Es un maestro que gestiona la partición de datos 12288-16383.
+* Esclavos:
+    * 50005: Es un esclavo del maestro 50003.
+    * 50006: Es un esclavo del maestro 50001.
+    * 50007: Es un esclavo del maestro 50004.
+    * 50008: Es un esclavo del maestro 50002.
+
+### Detalles Adicionales
+* Failover: Todos los nodos están configurados con nofailover, lo que significa que no habrá un cambio automático a un nodo maestro en caso de que uno falle. Esto es algo a considerar dependiendo de los requisitos de alta disponibilidad de tu aplicación.
+* Epochs: Todos los nodos tienen la variable currentEpoch configurada en 4 y lastVoteEpoch en 0, lo que sugiere que todos están en la misma etapa de configuración y sincronización.
+
+## Setup
+---
+1. Crea archivos de configuración para cada nodo.
+2. Inicia los nodos con sus respectivos archivos de configuración.
+3. Usa redis-cli para crear y verificar el clúster.
+
+
+## Redis
+---
+### Nodos
+---
+* Nodos Maestros (Master Nodes):
+    * Función: Son responsables de manejar las operaciones de escritura y replicar sus datos a los nodos réplicas.
+    * Ejemplo: En un clúster con tres nodos maestros, cada nodo maestro puede tener dos nodos réplicas para asegurar la disponibilidad y la tolerancia a fallos.
+
+* Nodos Réplica (Esclados) (Replica Nodes):
+    * Función: Se encargan de replicar los datos de un nodo maestro. Su objetivo es proporcionar alta disponibilidad. En caso de que el nodo maestro falle, un nodo réplica puede ser promovido a maestro.
+
+## Configurar un Clúster de Redis
+1. Preparación del Entorno
+Asegúrate de tener instalados Redis y sus dependencias en todos los nodos que formarán el clúster. Además, cada nodo debe tener una IP accesible y estar en la misma red.
+
+2. Configuración de Archivos de Configuración
+Crea un archivo de configuración para cada nodo en la carpeta ```copiar archivos en el directorio
+`/etc/redis/`.
+
+```
+/etc/redis/redis-master-01.conf
+/etc/redis/redis-master-02.conf
+/etc/redis/redis-master-03.conf
+/etc/redis/redis-master-04.conf
+/etc/redis/redis-replica-01.conf
+/etc/redis/redis-replica-02.conf
+/etc/redis/redis-replica-03.conf
+/etc/redis/redis-replica-04.conf
+```
+
+### Usando S3
+aws s3 cp s3://quotemedia-backups/my-redis/redis-master-01.conf /etc/redis/redis-master-01.conf
+aws s3 cp s3://quotemedia-backups/my-redis/redis-master-02.conf /etc/redis/redis-master-02.conf
+aws s3 cp s3://quotemedia-backups/my-redis/redis-master-03.conf /etc/redis/redis-master-03.conf
+aws s3 cp s3://quotemedia-backups/my-redis/redis-master-04.conf /etc/redis/redis-master-04.conf
+
+aws s3 cp s3://quotemedia-backups/my-redis/redis-replica-01.conf /etc/redis/redis-replica-01.conf
+aws s3 cp s3://quotemedia-backups/my-redis/redis-replica-02.conf /etc/redis/redis-replica-02.conf
+aws s3 cp s3://quotemedia-backups/my-redis/redis-replica-03.conf /etc/redis/redis-replica-03.conf
+aws s3 cp s3://quotemedia-backups/my-redis/redis-replica-04.conf /etc/redis/redis-replica-04.conf
+
+
+3. Iniciar los Nodos
+Inicia cada instancia de Redis con su archivo de configuración correspondiente:
+```
+redis-server /etc/redis/redis-master-01.conf
+redis-server /etc/redis/redis-replica-01.conf
+redis-server /etc/redis/redis-master-02.conf
+redis-server /etc/redis/redis-replica-02.conf
+redis-server /etc/redis/redis-master-03.conf
+redis-server /etc/redis/redis-replica-03.conf
+redis-server /etc/redis/redis-master-04.conf
+redis-server /etc/redis/redis-replica-04.conf
+```
+
+
+4. Crear el Clúster
+Una vez que todos los nodos están funcionando, necesitas crear el clúster usando la herramienta `redis-cli`. Asegúrate de que todos los nodos están activos.
+```
+redis-cli --cluster create \
+172.31.20.83:50001 \
+172.31.20.83:50002 \
+172.31.20.83:50003 \
+172.31.20.83:50004 \
+172.31.20.83:50005 \
+172.31.20.83:50006 \
+172.31.20.83:50007 \
+172.31.20.83:50008 \
+--cluster-replicas 1
+```
+5. Asignar Slots
+Redis utiliza un espacio de 16384 slots para distribuir las claves entre los nodos. Cada nodo maestro debe ser asignado a un rango de slots. Usa el siguiente comando para asignar slots a los nodos maestros:
+
+```
+redis-cli -h 10.0.143.154 -p 50001 cluster addslots 0-4095
+redis-cli -h 10.0.143.154 -p 50002 cluster addslots 4096-8191
+redis-cli -h 10.0.143.154 -p 50003 cluster addslots 8192-12287
+redis-cli -h 10.0.143.154 -p 50004 cluster addslots 12288-16383
+
+```
+
+6. Verificar la Configuración
+Puedes verificar que el clúster se ha configurado correctamente usando el siguiente comando:
+```
+redis-cli -h 10.0.143.154 -p 50001 cluster info
+```
+
+Verificar la asignación de slots:
+```
+redis-cli -h 10.0.143.154 -p 50001 cluster slots
+```
+
+7.  Monitorizar el Clúster
+```
+redis-cli -c -h 172.31.20.83 -p 50001 cluster nodes
+```
+
+### Notas
+* currentEpoch y lastVoteEpoch: Se gestionan internamente por Redis y no se pueden establecer directamente en el archivo de configuración.
+
+### Que falta?
+
+* Configurar nofailover
+```
+redis-cli -h <ip-nodo> -p <puerto-nodo> cluster failover nofailover
+```
+
+* Copiar la data
