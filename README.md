@@ -1,3 +1,13 @@
+```
+sudo apt install git
+```
+
+
+```
+git clone https://github.com/35P10/rd-dlyed
+```
+
+
 ## Install AWSCli aarch64
 
 Descarga la AWS CLI correcta para aarch64:
@@ -70,7 +80,7 @@ sudo nano /etc/hosts
 ```
 ```
 127.0.0.1   localhost
-127.0.1.1   ip-10-0-131-243
+127.0.1.1   ip-10-0-135-188
 ```
 
 ### 5. **Verificar que Redis esté funcionando**
@@ -220,8 +230,7 @@ aws s3 cp s3://quotemedia-backup/my-redis/redis-replica-03.conf /etc/redis/redis
 aws s3 cp s3://quotemedia-backup/my-redis/redis-replica-04.conf /etc/redis/redis-replica-04.conf
 ```
 
-2. Crear directorio
-mkdir
+2. Crear directorio mkdir
 ```
 sudo mkdir -p  /var/lib/redis/50001 /
 sudo mkdir -p  /var/lib/redis/50002 /
@@ -278,10 +287,10 @@ redis-server /etc/redis/redis-replica-04.conf
 Una vez que todos los nodos están funcionando, necesitas crear el clúster usando la herramienta `redis-cli`. Asegúrate de que todos los nodos están activos.
 
 
-redis-cli -h 10.0.135.188 -p 50001
+redis-cli -h 10.0.142.17 -p 50001
 
 ```
-redis-cli --cluster create 10.0.135.188:50001 10.0.135.188:50002 10.0.135.188:50003 10.0.135.188:50004 10.0.135.188:60001 10.0.135.188:60002 10.0.135.188:60003 10.0.135.188:60004 --cluster-replicas 1
+redis-cli --cluster create 10.0.142.17:50001 10.0.142.17:50002 10.0.142.17:50003 10.0.142.17:50004 10.0.142.17:60001 10.0.142.17:60002 10.0.142.17:60003 10.0.142.17:60004 --cluster-replicas 1
 ```
 
 El orden de los nodos: En el comando anterior, los primeros cuatro nodos (puertos 50001 a 50004) se consideran nodos maestros, y los siguientes cuatro (puertos 60001 a 60004) se consideran nodos esclavos.
@@ -297,10 +306,10 @@ Redis utiliza un espacio de 16384 slots para distribuir las claves entre los nod
 
 ```
 
-redis-cli -h 10.0.135.188 -p 50001 cluster addslots 0-4095
-redis-cli -h 10.0.135.188 -p 50002 cluster addslots 4096-8191
-redis-cli -h 10.0.135.188 -p 50003 cluster addslots 8192-12287
-redis-cli -h 10.0.135.188 -p 50004 cluster addslots 12288-16383
+redis-cli -h 10.0.142.17 -p 50001 cluster addslots 0-4095
+redis-cli -h 10.0.142.17 -p 50002 cluster addslots 4096-8191
+redis-cli -h 10.0.142.17 -p 50003 cluster addslots 8192-12287
+redis-cli -h 10.0.142.17 -p 50004 cluster addslots 12288-16383
 
 ```
 
@@ -308,14 +317,14 @@ redis-cli -h 10.0.135.188 -p 50004 cluster addslots 12288-16383
 Puedes verificar que el clúster se ha configurado correctamente usando el siguiente comando:
 ```
 
-redis-cli -h 10.0.135.188 -p 50001 cluster info
+redis-cli -h 10.0.142.17 -p 50001 cluster info
 
 ```
 
 Verificar la asignación de slots:
 ```
 
-redis-cli -h 10.0.135.188 -p 50001 cluster slots
+redis-cli -h 10.0.142.17 -p 50001 cluster slots
 
 ```
 
