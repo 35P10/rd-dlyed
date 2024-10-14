@@ -1,24 +1,4 @@
-```
-sudo apt install git
-```
-
-
-```bash
-git clone https://github.com/35P10/rd-dlyed
-```
-
-```bash
-cd rd-dlyed/
-```
-
-```bash
-sudo mv redis-*.conf /etc/redis/
-```
-Check:
-```bash
-sudo ls /etc/redis/
-```
-## Install AWSCli aarch64
+## Install AWSCli aarch64 (en caso sea necesario)
 
 Descarga la AWS CLI correcta para aarch64:
 ```bash
@@ -55,8 +35,6 @@ sudo apt upgrade
 
 ### 2. **Instalar Redis**
 
-Puedes instalar Redis usando `apt` con el siguiente comando:
-
 ```bash
 sudo apt install redis-server
 ```
@@ -74,6 +52,7 @@ Puedes abrirlo con un editor de texto, por ejemplo:
 ```bash
 sudo nano /etc/redis/redis.conf
 ```
+
 En este caso vamos a eliminarlo.
 ```bash
 sudo rm /etc/redis/redis.conf
@@ -85,9 +64,9 @@ Después de configurar Redis, habilita y arranca el servicio:
 
 
 ```bash
-sudo systemctl enable redis
 sudo systemctl start redis
 ```
+### Modificar los host
 
 ```
 sudo nano /etc/hosts
@@ -107,55 +86,69 @@ redis-cli ping
 
 Si está funcionando correctamente, deberías recibir la respuesta `PONG`.
 
-### 6. **(Opcional) Prueba de uso**
+## Desinstalar redis
 
-Puedes acceder al cliente de Redis para realizar pruebas:
+1. **Detener el servicio de Redis** (si está en ejecución):
+
+```bash
+sudo systemctl stop redis
+```
+
+2. **Desinstalar Redis**
+
+Si instalaste Redis usando `apt`, puedes desinstalarlo con:
+
+```bash
+sudo apt remove redis-server
+```
+
+O si deseas eliminar también los archivos de configuración:
+
+```bash
+sudo apt purge redis-server
+sudo rm -r /etc/redis
+```
+
+3. **Eliminar dependencias no utilizadas** (opcional):
+
+```bash
+sudo apt autoremove
+```
+
+4. **Verificar que Redis se haya desinstalado**:
+
+Puedes comprobar que Redis ya no está instalado con:
 
 ```bash
 redis-cli
 ```
 
-Una vez dentro, puedes probar comandos como:
+Si recibes un mensaje de que el comando no se encuentra, significa que la desinstalación fue exitosa.
 
-```bash
-set mi_clave "Hola, Redis!"
-get mi_clave
+# Instalar este Repo
+
+```
+sudo apt install git
 ```
 
-## Desinstalar redis
 
-1. **Detener el servicio de Redis** (si está en ejecución):
+```bash
+git clone https://github.com/35P10/rd-dlyed
+```
 
-   ```bash
-   sudo systemctl stop redis
-   ```
-2. **Desinstalar Redis**:
-   Si instalaste Redis usando `apt`, puedes desinstalarlo con:
+```bash
+cd rd-dlyed/
+```
 
-   ```bash
-   sudo apt remove redis-server
-   ```
+```bash
+sudo mv redis-*.conf /etc/redis/
+```
+Check:
+```bash
+sudo ls /etc/redis/ -l
+```
 
-   O si deseas eliminar también los archivos de configuración:
 
-   ```bash
-   sudo apt purge redis-server
-   sudo rm -r /etc/redis
-
-   ```
-3. **Eliminar dependencias no utilizadas** (opcional):
-
-   ```bash
-   sudo apt autoremove
-   ```
-4. **Verificar que Redis se haya desinstalado**:
-   Puedes comprobar que Redis ya no está instalado con:
-
-   ```bash
-   redis-cli
-   ```
-
-Si recibes un mensaje de que el comando no se encuentra, significa que la desinstalación fue exitosa.
 
 ## Descripción General del Clúster
 
@@ -173,10 +166,10 @@ Todos los nodos están en la misma dirección IP 10.0.132.78 pero están distrib
   * 50003: Es un maestro que gestiona la partición de datos 8192-12287.
   * 50004: Es un maestro que gestiona la partición de datos 12288-16383.
 * Esclavos:
-  * 60001: Es un esclavo del maestro 50001.
-  * 60002: Es un esclavo del maestro 50002.
-  * 60003: Es un esclavo del maestro 50003.
-  * 60004: Es un esclavo del maestro 50004.
+  * 50005: Es un esclavo del maestro 50001.
+  * 50006: Es un esclavo del maestro 50002.
+  * 50007: Es un esclavo del maestro 50003.
+  * 50008: Es un esclavo del maestro 50004.
 
 ### Detalles Adicionales
 
@@ -226,16 +219,16 @@ Todos los nodos están en la misma dirección IP 10.0.132.78 pero están distrib
 /etc/redis/redis-replica-04.conf
 ```
 
-2. Crear directorio mkdir
+2. Crear directorios
 ```bash
 sudo mkdir -p  /var/lib/redis/50001
 sudo mkdir -p  /var/lib/redis/50002
 sudo mkdir -p  /var/lib/redis/50003
 sudo mkdir -p  /var/lib/redis/50004
-sudo mkdir -p  /var/lib/redis/60001
-sudo mkdir -p  /var/lib/redis/60002
-sudo mkdir -p  /var/lib/redis/60003
-sudo mkdir -p  /var/lib/redis/60004
+sudo mkdir -p  /var/lib/redis/50005
+sudo mkdir -p  /var/lib/redis/50006
+sudo mkdir -p  /var/lib/redis/50007
+sudo mkdir -p  /var/lib/redis/50008
 ```
 permiso redis:redis
 ```bash
@@ -243,10 +236,10 @@ sudo chown redis:redis /var/lib/redis/50001
 sudo chown redis:redis /var/lib/redis/50002
 sudo chown redis:redis /var/lib/redis/50003
 sudo chown redis:redis /var/lib/redis/50004
-sudo chown redis:redis /var/lib/redis/60001
-sudo chown redis:redis /var/lib/redis/60002
-sudo chown redis:redis /var/lib/redis/60003
-sudo chown redis:redis /var/lib/redis/60004
+sudo chown redis:redis /var/lib/redis/50005
+sudo chown redis:redis /var/lib/redis/50006
+sudo chown redis:redis /var/lib/redis/50007
+sudo chown redis:redis /var/lib/redis/50008
 ```
 permiso 750
 ```bash
@@ -258,42 +251,10 @@ sudo chmod 750 /var/lib/redis/50001
 sudo chmod 750 /var/lib/redis/50002
 sudo chmod 750 /var/lib/redis/50003
 sudo chmod 750 /var/lib/redis/50004
-sudo chmod 750 /var/lib/redis/60001
-sudo chmod 750 /var/lib/redis/60002
-sudo chmod 750 /var/lib/redis/60003
-sudo chmod 750 /var/lib/redis/60004
-```
-
-## Configurar los nodos maestros
-
-Los archivos de los nodos maestros son:
-```bash
-/etc/redis/redis-master-01.conf
-/etc/redis/redis-master-02.conf
-/etc/redis/redis-master-03.conf
-/etc/redis/redis-master-04.conf
-```
-
-### Crea los directorios necesarios para cada nodo:
-
-
-### Crear servicios de systemd para los nodos maestros:
-
-en la ruta `/etc/systemd/system/`
-
-sudo nano /etc/systemd/system/redis-50001.service
-
-```bash
-sudo mv redis-*.service /etc/systemd/system/
-```
-
-### Habilitar y arrancar los servicios para los maestros:
-
-``` bash
-sudo systemctl daemon-reload
-sudo systemctl enable redis-50001 redis-50002 redis-50003 redis-50004
-sudo systemctl start redis-50001 redis-50002 redis-50003 redis-50004
-
+sudo chmod 750 /var/lib/redis/50005
+sudo chmod 750 /var/lib/redis/50006
+sudo chmod 750 /var/lib/redis/50007
+sudo chmod 750 /var/lib/redis/50008
 ```
 
 
@@ -303,20 +264,26 @@ sudo systemctl start redis-50001 redis-50002 redis-50003 redis-50004
 
 
 ```bash
-redis-server /etc/redis/redis-master-01.conf
-redis-server /etc/redis/redis-replica-01.conf
-redis-server /etc/redis/redis-master-02.conf
-redis-server /etc/redis/redis-replica-02.conf
-redis-server /etc/redis/redis-master-03.conf
-redis-server /etc/redis/redis-replica-03.conf
-redis-server /etc/redis/redis-master-04.conf
-redis-server /etc/redis/redis-replica-04.conf
+sudo redis-server /etc/redis/redis-master-01.conf
+sudo redis-server /etc/redis/redis-replica-01.conf
+sudo redis-server /etc/redis/redis-master-02.conf
+sudo redis-server /etc/redis/redis-replica-02.conf
+sudo redis-server /etc/redis/redis-master-03.conf
+sudo redis-server /etc/redis/redis-replica-03.conf
+sudo redis-server /etc/redis/redis-master-04.conf
+sudo redis-server /etc/redis/redis-replica-04.conf
 ```
 
-## Crear servicio
+
+Si hay un error, revisa el log del nodo:
+```bash
+cat /var/log/redis/redis-50005.log
+```
+
+## Crear servicio -------------------
 
 ```bash
-sudo nano /etc/systemd/system/redis-master-01.service
+sudo nano /etc/systemd/system/redis-replica-01.service
 ```
 Agrega la configuración del servicio
 
@@ -342,24 +309,50 @@ Verifica el estado del servicio:
 sudo systemctl status redis-master-01
 ```
 
+2. Hacer lo mismo para los demas nodos maestros y esclavos:
 
-4. Crear el Clúster
+```
+sudo systemctl daemon-reload
+sudo systemctl enable redis-replica-01.service redis-replica-02.service redis-replica-03.service redis-replica-04.service
+sudo systemctl start redis-replica-01.service redis-replica-02.service redis-replica-03.service redis-replica-04.service
+```
+
+
+## Crear el Clúster -------------------
 
 Una vez que todos los nodos están funcionando, necesitas crear el clúster usando la herramienta `redis-cli`. Asegúrate de que todos los nodos están activos.
 
-
+```bash
 redis-cli -h 10.0.132.78 -p 50001
-
-```
-redis-cli --cluster create 10.0.132.78:50001 10.0.132.78:50002 10.0.132.78:50003 10.0.132.78:50004 10.0.132.78:60001 10.0.132.78:60002 10.0.132.78:60003 10.0.132.78:60004 --cluster-replicas 1
 ```
 
-El orden de los nodos: En el comando anterior, los primeros cuatro nodos (puertos 50001 a 50004) se consideran nodos maestros, y los siguientes cuatro (puertos 60001 a 60004) se consideran nodos esclavos.
+1. Forma 1
+
+```bash
+redis-cli --cluster create 10.0.132.78:50001 10.0.132.78:50002 10.0.132.78:50003 10.0.132.78:50004 10.0.132.78:50005 10.0.132.78:50006 10.0.132.78:50007 10.0.132.78:50008 --cluster-replicas 1
+```
+
+1. Forma 2
+
+```bash
+redis-cli -h 10.0.132.78 -p 50001 --cluster create 10.0.132.78:50001 10.0.132.78:50002 10.0.132.78:50003 10.0.132.78:50004
+```
+
+```bash
+redis-cli --cluster add-node 10.0.132.78:50005 10.0.132.78:50001 --cluster-slave
+redis-cli --cluster add-node 10.0.132.78:50006 10.0.132.78:50002 --cluster-slave
+redis-cli --cluster add-node 10.0.132.78:50007 10.0.132.78:50003 --cluster-slave
+redis-cli --cluster add-node 10.0.132.78:50008 10.0.132.78:50004 --cluster-slave
+```
+
+
+
+El orden de los nodos: En el comando anterior, los primeros cuatro nodos (puertos 50001 a 50004) se consideran nodos maestros, y los siguientes cuatro (puertos 50005 a 50008) se consideran nodos esclavos.
 
 Asignación automática: Redis automáticamente asigna un nodo esclavo a cada nodo maestro en el mismo orden. Por ejemplo:
 
-El esclavo en el puerto 60001 se asignará al maestro en el puerto 50001.
-El esclavo en el puerto 60002 se asignará al maestro en el puerto 50002.
+El esclavo en el puerto 50005 se asignará al maestro en el puerto 50001.
+El esclavo en el puerto 50006 se asignará al maestro en el puerto 50002.
 Y así sucesivamente.
 
 5. Asignar Slots
@@ -410,3 +403,8 @@ redis-cli -h `<ip-nodo>` -p `<puerto-nodo>` cluster failover nofailover
 
 * Copiar la data
 ```
+
+
+
+## Recursos:
+- https://redis.io/docs/latest/operate/oss_and_stack/management/scaling/#adding-a-new-node-as-a-replica
