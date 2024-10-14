@@ -285,8 +285,6 @@ cat /var/log/redis/redis-50005.log
 sudo nano /etc/systemd/system/redis-replica-01.service
 ```
 Agrega la configuración del servicio
-
-
 Recarga el demonio de systemd para asegurarte de que el nuevo servicio se registre:
 
 ```bash
@@ -310,7 +308,13 @@ sudo systemctl status redis-master-01
 
 2. Hacer lo mismo para los demas nodos maestros y esclavos:
 
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable redis-master-01.service redis-master-02.service redis-master-03.service redis-master-04.service
+sudo systemctl start redis-master-01.service redis-master-02.service redis-master-03.service redis-master-04.service
 ```
+
+```bash
 sudo systemctl daemon-reload
 sudo systemctl enable redis-replica-01.service redis-replica-02.service redis-replica-03.service redis-replica-04.service
 sudo systemctl start redis-replica-01.service redis-replica-02.service redis-replica-03.service redis-replica-04.service
@@ -331,7 +335,15 @@ redis-cli -h 10.0.132.78 -p 50001
 redis-cli --cluster create 10.0.132.78:50001 10.0.132.78:50002 10.0.132.78:50003 10.0.132.78:50004 10.0.132.78:50005 10.0.132.78:50006 10.0.132.78:50007 10.0.132.78:50008 --cluster-replicas 1
 ```
 
-1. Forma 2
+El orden de los nodos: En el comando anterior, los primeros cuatro nodos (puertos 50001 a 50004) se consideran nodos maestros, y los siguientes cuatro (puertos 50005 a 50008) se consideran nodos esclavos.
+
+Asignación automática: Redis automáticamente asigna un nodo esclavo a cada nodo maestro en el mismo orden. Por ejemplo:
+
+El esclavo en el puerto 50005 se asignará al maestro en el puerto 50001.
+El esclavo en el puerto 50006 se asignará al maestro en el puerto 50002.
+Y así sucesivamente.
+
+1. Forma 2 (Si forma 1 no funciona)
 
 ```bash
 redis-cli -h 10.0.132.78 -p 50001 --cluster create 10.0.132.78:50001 10.0.132.78:50002 10.0.132.78:50003 10.0.132.78:50004
@@ -346,19 +358,11 @@ redis-cli --cluster add-node 10.0.132.78:50008 10.0.132.78:50004 --cluster-slave
 
 
 
-El orden de los nodos: En el comando anterior, los primeros cuatro nodos (puertos 50001 a 50004) se consideran nodos maestros, y los siguientes cuatro (puertos 50005 a 50008) se consideran nodos esclavos.
 
-Asignación automática: Redis automáticamente asigna un nodo esclavo a cada nodo maestro en el mismo orden. Por ejemplo:
-
-El esclavo en el puerto 50005 se asignará al maestro en el puerto 50001.
-El esclavo en el puerto 50006 se asignará al maestro en el puerto 50002.
-Y así sucesivamente.
-
-5. Asignar Slots
+5. Asignar Slots (No es necesrio)
 Redis utiliza un espacio de 16384 slots para distribuir las claves entre los nodos. Cada nodo maestro debe ser asignado a un rango de slots. Usa el siguiente comando para asignar slots a los nodos maestros:
 
-```
-
+```bash
 redis-cli -h 10.0.132.78 -p 50001 cluster addslots 0-4095
 redis-cli -h 10.0.132.78 -p 50002 cluster addslots 4096-8191
 redis-cli -h 10.0.132.78 -p 50003 cluster addslots 8192-12287
@@ -368,24 +372,18 @@ redis-cli -h 10.0.132.78 -p 50004 cluster addslots 12288-16383
 
 6. Verificar la Configuración
 Puedes verificar que el clúster se ha configurado correctamente usando el siguiente comando:
-```
-
+```bash
 redis-cli -h 10.0.132.78 -p 50001 cluster info
-
 ```
 
 Verificar la asignación de slots:
-```
-
+```bash
 redis-cli -h 10.0.132.78 -p 50001 cluster slots
-
 ```
 
 7.  Monitorizar el Clúster
-```
-
+```bash
 redis-cli -c -h 172.31.20.83 -p 50001 cluster nodes
-
 ```
 
 ### Notas
@@ -394,10 +392,8 @@ redis-cli -c -h 172.31.20.83 -p 50001 cluster nodes
 ### Que falta?
 
 * Configurar nofailover
-```
-
+```bash
 redis-cli -h `<ip-nodo>` -p `<puerto-nodo>` cluster failover nofailover
-
 ```
 
 * Copiar la data
@@ -440,3 +436,48 @@ Esto te mostrará un rango de slots y a qué nodos están asignados.
 
 ## Recursos:
 - https://redis.io/docs/latest/operate/oss_and_stack/management/scaling/#adding-a-new-node-as-a-replica
+
+
+
+
+## Copiar Data:
+
+1. Identifica los nodos maestros: Los nodos maestros están en los puertos 50001, 50002, 50003, y 50004. Estos son los nodos en los que debes sobreescribir los archivos RDB.
+
+2. Detén los nodos maestros: Detén los servicios Redis de los nodos maestros para evitar que escriban en los archivos mientras los sobrescribes:
+
+```bash
+sudo systemctl stop redis-master-01
+sudo systemctl stop redis-master-02
+sudo systemctl stop redis-master-03
+sudo systemctl stop redis-master-04
+```
+
+3. Sobreescribe los archivos RDB en los nodos maestros: Sobrescribe los archivos dump.rdb en los directorios correspondientes a los nodos maestros. Aquí están las rutas para tus nodos maestros:
+
+
+
+
+```bash
+Nodo maestro 1 (Puerto 50001): /var/lib/redis/50001/dump.rdb
+Nodo maestro 2 (Puerto 50002): /var/lib/redis/50002/dump.rdb
+Nodo maestro 3 (Puerto 50003): /var/lib/redis/50003/dump.rdb
+Nodo maestro 4 (Puerto 50004): /var/lib/redis/50004/dump.rdb
+```
+Copia el archivo dump.rdb del Redis original (el que contiene los datos que deseas importar) y colócalo en estas rutas.
+
+
+Los nodos esclavos no requieren sobreescribir la data: No es necesario sobreescribir los archivos en los nodos esclavos, ya que estos nodos sincronizarán automáticamente los datos desde sus respectivos nodos maestros.
+
+```bash
+sudo aws s3 s3://quotemedia-backups/my-redis/dump-01.rdb cp /var/lib/redis/50001/dump.rdb
+
+sudo aws s3 s3://quotemedia-backups/my-redis/dump-02.rdb cp /var/lib/redis/50002/dump.rdb
+
+sudo aws s3 s3://quotemedia-backups/my-redis/dump-03.rdb cp /var/lib/redis/50003/dump.rdb
+
+sudo aws s3 s3://quotemedia-backups/my-redis/dump-04.rdb cp /var/lib/redis/50004/dump.rdb
+
+```
+
+3. Reinicia los nodos maestros: Después de sobreescribir los archivos RDB, reinicia los servicios Redis en cada nodo maestro para que carguen los nuevos datos:
