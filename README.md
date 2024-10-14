@@ -3,15 +3,21 @@ sudo apt install git
 ```
 
 
-```
+```bash
 git clone https://github.com/35P10/rd-dlyed
 ```
 
+```bash
+cd rd-dlyed/
 ```
+
+```bash
 sudo mv redis-*.conf /etc/redis/
 ```
-
-
+Check:
+```bash
+sudo ls /etc/redis/
+```
 ## Install AWSCli aarch64
 
 Descarga la AWS CLI correcta para aarch64:
@@ -67,6 +73,10 @@ Puedes abrirlo con un editor de texto, por ejemplo:
 
 ```bash
 sudo nano /etc/redis/redis.conf
+```
+En este caso vamos a eliminarlo.
+```bash
+sudo rm /etc/redis/redis.conf
 ```
 
 ### 4. **Habilitar y arrancar el servicio**
@@ -155,7 +165,7 @@ El clúster está compuesto por un total de 8 nodos.
 Hay 4 nodos maestros (master) y 4 nodos esclavos (slave).
 Direcciones IP y Puertos:
 
-Todos los nodos están en la misma dirección IP 172.31.20.83 pero están distribuidos en diferentes puertos:
+Todos los nodos están en la misma dirección IP 10.0.132.78 pero están distribuidos en diferentes puertos:
 
 * Maestros:
   * 50001: Es un maestro con la capacidad de gestionar la partición de datos 0-4095.
@@ -205,7 +215,7 @@ Todos los nodos están en la misma dirección IP 172.31.20.83 pero están distri
    Crea un archivo de configuración para cada nodo en la carpeta ```copiar archivos en el directorio
    `/etc/redis/`.
 
-```
+```bash
 /etc/redis/redis-master-01.conf
 /etc/redis/redis-master-02.conf
 /etc/redis/redis-master-03.conf
@@ -216,64 +226,83 @@ Todos los nodos están en la misma dirección IP 172.31.20.83 pero están distri
 /etc/redis/redis-replica-04.conf
 ```
 
-NOTA: 
-```
-sudo -s
-``
-
-### Usando S3
-
-```
-aws s3 cp s3://quotemedia-backup/my-redis/redis-master-01.conf /etc/redis/redis-master-01.conf 
-aws s3 cp s3://quotemedia-backup/my-redis/redis-master-02.conf /etc/redis/redis-master-02.conf 
-aws s3 cp s3://quotemedia-backup/my-redis/redis-master-03.conf /etc/redis/redis-master-03.conf 
-aws s3 cp s3://quotemedia-backup/my-redis/redis-master-04.conf /etc/redis/redis-master-04.conf 
-aws s3 cp s3://quotemedia-backup/my-redis/redis-replica-01.conf /etc/redis/redis-replica-01.conf 
-aws s3 cp s3://quotemedia-backup/my-redis/redis-replica-02.conf /etc/redis/redis-replica-02.conf
-aws s3 cp s3://quotemedia-backup/my-redis/redis-replica-03.conf /etc/redis/redis-replica-03.conf
-aws s3 cp s3://quotemedia-backup/my-redis/redis-replica-04.conf /etc/redis/redis-replica-04.conf
-```
-
 2. Crear directorio mkdir
-```
-sudo mkdir -p  /var/lib/redis/50001 /
-sudo mkdir -p  /var/lib/redis/50002 /
-sudo mkdir -p  /var/lib/redis/50003 /
-sudo mkdir -p  /var/lib/redis/50004 /
-sudo mkdir -p  /var/lib/redis/60001 /
-sudo mkdir -p  /var/lib/redis/60002 /
-sudo mkdir -p  /var/lib/redis/60003 /
-sudo mkdir -p  /var/lib/redis/60004 /
+```bash
+sudo mkdir -p  /var/lib/redis/50001
+sudo mkdir -p  /var/lib/redis/50002
+sudo mkdir -p  /var/lib/redis/50003
+sudo mkdir -p  /var/lib/redis/50004
+sudo mkdir -p  /var/lib/redis/60001
+sudo mkdir -p  /var/lib/redis/60002
+sudo mkdir -p  /var/lib/redis/60003
+sudo mkdir -p  /var/lib/redis/60004
 ```
 permiso redis:redis
-```
-sudo chown redis:redis /var/lib/redis/50001 /
-sudo chown redis:redis /var/lib/redis/50002 /
-sudo chown redis:redis /var/lib/redis/50003 /
-sudo chown redis:redis /var/lib/redis/50004 /
-sudo chown redis:redis /var/lib/redis/60001 /
-sudo chown redis:redis /var/lib/redis/60002 /
-sudo chown redis:redis /var/lib/redis/60003 /
-sudo chown redis:redis /var/lib/redis/60004 /
+```bash
+sudo chown redis:redis /var/lib/redis/50001
+sudo chown redis:redis /var/lib/redis/50002
+sudo chown redis:redis /var/lib/redis/50003
+sudo chown redis:redis /var/lib/redis/50004
+sudo chown redis:redis /var/lib/redis/60001
+sudo chown redis:redis /var/lib/redis/60002
+sudo chown redis:redis /var/lib/redis/60003
+sudo chown redis:redis /var/lib/redis/60004
 ```
 permiso 750
+```bash
+sudo -s
 ```
-sudo chmod 750 /var/lib/redis/50001 /
-sudo chmod 750 /var/lib/redis/50002 /
-sudo chmod 750 /var/lib/redis/50003 /
-sudo chmod 750 /var/lib/redis/50004 /
-sudo chmod 750 /var/lib/redis/60001 /
-sudo chmod 750 /var/lib/redis/60002 /
-sudo chmod 750 /var/lib/redis/60003 /
-sudo chmod 750 /var/lib/redis/60004 /
+
+```bash
+sudo chmod 750 /var/lib/redis/50001
+sudo chmod 750 /var/lib/redis/50002
+sudo chmod 750 /var/lib/redis/50003
+sudo chmod 750 /var/lib/redis/50004
+sudo chmod 750 /var/lib/redis/60001
+sudo chmod 750 /var/lib/redis/60002
+sudo chmod 750 /var/lib/redis/60003
+sudo chmod 750 /var/lib/redis/60004
 ```
+
+## Configurar los nodos maestros
+
+Los archivos de los nodos maestros son:
+```bash
+/etc/redis/redis-master-01.conf
+/etc/redis/redis-master-02.conf
+/etc/redis/redis-master-03.conf
+/etc/redis/redis-master-04.conf
+```
+
+### Crea los directorios necesarios para cada nodo:
+
+
+### Crear servicios de systemd para los nodos maestros:
+
+en la ruta `/etc/systemd/system/`
+
+sudo nano /etc/systemd/system/redis-50001.service
+
+```bash
+sudo mv redis-*.service /etc/systemd/system/
+```
+
+### Habilitar y arrancar los servicios para los maestros:
+
+``` bash
+sudo systemctl daemon-reload
+sudo systemctl enable redis-50001 redis-50002 redis-50003 redis-50004
+sudo systemctl start redis-50001 redis-50002 redis-50003 redis-50004
+
+```
+
+
 
 3. Iniciar los Nodos
    Inicia cada instancia de Redis con su archivo de configuración correspondiente:
 
 
-
-```
+```bash
 redis-server /etc/redis/redis-master-01.conf
 redis-server /etc/redis/redis-replica-01.conf
 redis-server /etc/redis/redis-master-02.conf
@@ -282,7 +311,35 @@ redis-server /etc/redis/redis-master-03.conf
 redis-server /etc/redis/redis-replica-03.conf
 redis-server /etc/redis/redis-master-04.conf
 redis-server /etc/redis/redis-replica-04.conf
+```
 
+## Crear servicio
+
+```bash
+sudo nano /etc/systemd/system/redis-master-01.service
+```
+Agrega la configuración del servicio
+
+
+Recarga el demonio de systemd para asegurarte de que el nuevo servicio se registre:
+
+```bash
+sudo systemctl daemon-reload
+```
+Habilita y arranca el servicio:
+
+```bash
+sudo systemctl enable redis-master-01
+```
+
+Para iniciar el servicio inmediatamente:
+```bash
+sudo systemctl start redis-master-01
+```
+
+Verifica el estado del servicio:
+```bash
+sudo systemctl status redis-master-01
 ```
 
 
@@ -291,10 +348,10 @@ redis-server /etc/redis/redis-replica-04.conf
 Una vez que todos los nodos están funcionando, necesitas crear el clúster usando la herramienta `redis-cli`. Asegúrate de que todos los nodos están activos.
 
 
-redis-cli -h 10.0.130.6 -p 50001
+redis-cli -h 10.0.132.78 -p 50001
 
 ```
-redis-cli --cluster create 10.0.130.6:50001 10.0.130.6:50002 10.0.130.6:50003 10.0.130.6:50004 10.0.130.6:60001 10.0.130.6:60002 10.0.130.6:60003 10.0.130.6:60004 --cluster-replicas 1
+redis-cli --cluster create 10.0.132.78:50001 10.0.132.78:50002 10.0.132.78:50003 10.0.132.78:50004 10.0.132.78:60001 10.0.132.78:60002 10.0.132.78:60003 10.0.132.78:60004 --cluster-replicas 1
 ```
 
 El orden de los nodos: En el comando anterior, los primeros cuatro nodos (puertos 50001 a 50004) se consideran nodos maestros, y los siguientes cuatro (puertos 60001 a 60004) se consideran nodos esclavos.
@@ -310,10 +367,10 @@ Redis utiliza un espacio de 16384 slots para distribuir las claves entre los nod
 
 ```
 
-redis-cli -h 10.0.130.6 -p 50001 cluster addslots 0-4095
-redis-cli -h 10.0.130.6 -p 50002 cluster addslots 4096-8191
-redis-cli -h 10.0.130.6 -p 50003 cluster addslots 8192-12287
-redis-cli -h 10.0.130.6 -p 50004 cluster addslots 12288-16383
+redis-cli -h 10.0.132.78 -p 50001 cluster addslots 0-4095
+redis-cli -h 10.0.132.78 -p 50002 cluster addslots 4096-8191
+redis-cli -h 10.0.132.78 -p 50003 cluster addslots 8192-12287
+redis-cli -h 10.0.132.78 -p 50004 cluster addslots 12288-16383
 
 ```
 
@@ -321,14 +378,14 @@ redis-cli -h 10.0.130.6 -p 50004 cluster addslots 12288-16383
 Puedes verificar que el clúster se ha configurado correctamente usando el siguiente comando:
 ```
 
-redis-cli -h 10.0.130.6 -p 50001 cluster info
+redis-cli -h 10.0.132.78 -p 50001 cluster info
 
 ```
 
 Verificar la asignación de slots:
 ```
 
-redis-cli -h 10.0.130.6 -p 50001 cluster slots
+redis-cli -h 10.0.132.78 -p 50001 cluster slots
 
 ```
 
