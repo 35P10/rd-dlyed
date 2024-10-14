@@ -1,3 +1,30 @@
+
+## Descripción General del Clúster
+
+### Número de Nodos:
+
+El clúster está compuesto por un total de 8 nodos.
+Hay 4 nodos maestros (master) y 4 nodos esclavos (slave).
+Direcciones IP y Puertos:
+
+Todos los nodos están en la misma dirección IP 10.0.132.78 pero están distribuidos en diferentes puertos:
+
+* Maestros:
+  * 50001: Es un maestro con la capacidad de gestionar la partición de datos 0-4095.
+  * 50002: Es un maestro que gestiona la partición de datos 4096-8191.
+  * 50003: Es un maestro que gestiona la partición de datos 8192-12287.
+  * 50004: Es un maestro que gestiona la partición de datos 12288-16383.
+* Esclavos:
+  * 50005: Es un esclavo del maestro 50001.
+  * 50006: Es un esclavo del maestro 50002.
+  * 50007: Es un esclavo del maestro 50003.
+  * 50008: Es un esclavo del maestro 50004.
+
+### Detalles Adicionales
+
+* Failover: Todos los nodos están configurados con nofailover, lo que significa que no habrá un cambio automático a un nodo maestro en caso de que uno falle. Esto es algo a considerar dependiendo de los requisitos de alta disponibilidad de tu aplicación.
+* Epochs: Todos los nodos tienen la variable currentEpoch configurada en 4 y lastVoteEpoch en 0, lo que sugiere que todos están en la misma etapa de configuración y sincronización.
+
 ## Install AWSCli aarch64 (en caso sea necesario)
 
 Descarga la AWS CLI correcta para aarch64:
@@ -147,34 +174,6 @@ Check:
 ```bash
 sudo ls /etc/redis/ -l
 ```
-
-
-
-## Descripción General del Clúster
-
-### Número de Nodos:
-
-El clúster está compuesto por un total de 8 nodos.
-Hay 4 nodos maestros (master) y 4 nodos esclavos (slave).
-Direcciones IP y Puertos:
-
-Todos los nodos están en la misma dirección IP 10.0.132.78 pero están distribuidos en diferentes puertos:
-
-* Maestros:
-  * 50001: Es un maestro con la capacidad de gestionar la partición de datos 0-4095.
-  * 50002: Es un maestro que gestiona la partición de datos 4096-8191.
-  * 50003: Es un maestro que gestiona la partición de datos 8192-12287.
-  * 50004: Es un maestro que gestiona la partición de datos 12288-16383.
-* Esclavos:
-  * 50005: Es un esclavo del maestro 50001.
-  * 50006: Es un esclavo del maestro 50002.
-  * 50007: Es un esclavo del maestro 50003.
-  * 50008: Es un esclavo del maestro 50004.
-
-### Detalles Adicionales
-
-* Failover: Todos los nodos están configurados con nofailover, lo que significa que no habrá un cambio automático a un nodo maestro en caso de que uno falle. Esto es algo a considerar dependiendo de los requisitos de alta disponibilidad de tu aplicación.
-* Epochs: Todos los nodos tienen la variable currentEpoch configurada en 4 y lastVoteEpoch en 0, lo que sugiere que todos están en la misma etapa de configuración y sincronización.
 
 ## Setup
 
@@ -402,9 +401,42 @@ redis-cli -h `<ip-nodo>` -p `<puerto-nodo>` cluster failover nofailover
 ```
 
 * Copiar la data
+
+### El mensaje MOVED
+ El mensaje (error) indica que el comando SET que intentaste ejecutar no se pudo completar en el nodo actual porque la clave que estás intentando establecer está asignada a otro nodo en el clúster.
+
+¿Por qué ocurre esto?
+En un clúster de Redis, los datos se distribuyen entre los nodos maestros utilizando un hash de slot. Cada clave se asigna a un slot, y cada slot se mapea a un nodo maestro. En tu caso:
+
+El nodo en el que estás conectado no es el maestro responsable de gestionar el slot donde se encuentra la clave nombre.
+
+¿Qué puedes hacer?
+* Conectarte al nodo correcto:
+Puedes conectarte directamente al nodo maestro que gestiona el slot correspondiente. 
+
+* Utilizar el redireccionamiento automático:
+Redis está diseñado para manejar automáticamente el redireccionamiento a nodos correctos cuando ejecutas comandos. Si el cliente Redis está configurado para seguir el redireccionamiento, debería hacer esto por ti. Asegúrate de que estás usando una versión reciente de redis-cli que soporte esta funcionalidad.
+
+```bash
+redis-cli -c -h 10.0.132.78 -p 50001
+SET name "hello world!"
+GET name
 ```
 
+* Comprobando el Slot
+Si deseas saber qué clave pertenece a qué slot, puedes usar el comando CLUSTER SLOTS para ver la asignación de slots en tu clúster:
 
+```bash
+redis-cli -h 10.0.132.78 -p 50001
+```
+
+Luego, ejecuta:
+
+```plaintext
+CLUSTER SLOTS
+```
+
+Esto te mostrará un rango de slots y a qué nodos están asignados.
 
 ## Recursos:
 - https://redis.io/docs/latest/operate/oss_and_stack/management/scaling/#adding-a-new-node-as-a-replica
