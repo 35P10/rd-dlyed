@@ -1,18 +1,24 @@
 ## Install AWSCli aarch64
 
 Descarga la AWS CLI correcta para aarch64:
+```bash
 curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip"
-
+```
 
 Descomprime el archivo descargado:
+```bash
 unzip awscliv2.zip
+```
 
 Ejecuta el instalador:
+```bash
 sudo ./aws/install
+```
 
 Verifica la instalación:
+```bash
 aws --version
-
+```
 
 ## Instalar Redis
 
@@ -52,6 +58,7 @@ sudo nano /etc/redis/redis.conf
 ### 4. **Habilitar y arrancar el servicio**
 
 Después de configurar Redis, habilita y arranca el servicio:
+
 
 ```bash
 sudo systemctl enable redis
@@ -202,15 +209,16 @@ NOTA:
 
 ### Usando S3
 
-* aws s3 cp s3://quotemedia-backups/my-redis/redis-master-01.conf /etc/redis/redis-master-01.conf
-* aws s3 cp s3://quotemedia-backups/my-redis/redis-master-02.conf /etc/redis/redis-master-02.conf
-* aws s3 cp s3://quotemedia-backups/my-redis/redis-master-03.conf /etc/redis/redis-master-03.conf
-* aws s3 cp s3://quotemedia-backups/my-redis/redis-master-04.conf /etc/redis/redis-master-04.conf
-* aws s3 cp s3://quotemedia-backups/my-redis/redis-replica-01.conf /etc/redis/redis-replica-01.conf
-* aws s3 cp s3://quotemedia-backups/my-redis/redis-replica-02.conf /etc/redis/redis-replica-02.conf
-* aws s3 cp s3://quotemedia-backups/my-redis/redis-replica-03.conf /etc/redis/redis-replica-03.conf
-* aws s3 cp s3://quotemedia-backups/my-redis/redis-replica-04.conf /etc/redis/redis-replica-04.conf
-
+```
+aws s3 cp s3://quotemedia-backup/my-redis/redis-master-01.conf /etc/redis/redis-master-01.conf 
+aws s3 cp s3://quotemedia-backup/my-redis/redis-master-02.conf /etc/redis/redis-master-02.conf 
+aws s3 cp s3://quotemedia-backup/my-redis/redis-master-03.conf /etc/redis/redis-master-03.conf 
+aws s3 cp s3://quotemedia-backup/my-redis/redis-master-04.conf /etc/redis/redis-master-04.conf 
+aws s3 cp s3://quotemedia-backup/my-redis/redis-replica-01.conf /etc/redis/redis-replica-01.conf 
+aws s3 cp s3://quotemedia-backup/my-redis/redis-replica-02.conf /etc/redis/redis-replica-02.conf
+aws s3 cp s3://quotemedia-backup/my-redis/redis-replica-03.conf /etc/redis/redis-replica-03.conf
+aws s3 cp s3://quotemedia-backup/my-redis/redis-replica-04.conf /etc/redis/redis-replica-04.conf
+```
 
 2. Crear directorio
 mkdir
@@ -270,10 +278,10 @@ redis-server /etc/redis/redis-replica-04.conf
 Una vez que todos los nodos están funcionando, necesitas crear el clúster usando la herramienta `redis-cli`. Asegúrate de que todos los nodos están activos.
 
 
-redis-cli -h 10.0.143.154 -p 50001
+redis-cli -h 10.0.139.202 -p 50001
 
 ```
-redis-cli --cluster create 10.0.143.154:50001 10.0.143.154:50002 10.0.143.154:50003 10.0.143.154:50004 10.0.143.154:60001 10.0.143.154:60002 10.0.143.154:60003 10.0.143.154:60004 --cluster-replicas 1
+redis-cli --cluster create 10.0.139.202:50001 10.0.139.202:50002 10.0.139.202:50003 10.0.139.202:50004 10.0.139.202:60001 10.0.139.202:60002 10.0.139.202:60003 10.0.139.202:60004 --cluster-replicas 1
 ```
 
 El orden de los nodos: En el comando anterior, los primeros cuatro nodos (puertos 50001 a 50004) se consideran nodos maestros, y los siguientes cuatro (puertos 60001 a 60004) se consideran nodos esclavos.
@@ -289,10 +297,10 @@ Redis utiliza un espacio de 16384 slots para distribuir las claves entre los nod
 
 ```
 
-redis-cli -h 10.0.143.154 -p 50001 cluster addslots 0-4095
-redis-cli -h 10.0.143.154 -p 50002 cluster addslots 4096-8191
-redis-cli -h 10.0.143.154 -p 50003 cluster addslots 8192-12287
-redis-cli -h 10.0.143.154 -p 50004 cluster addslots 12288-16383
+redis-cli -h 10.0.139.202 -p 50001 cluster addslots 0-4095
+redis-cli -h 10.0.139.202 -p 50002 cluster addslots 4096-8191
+redis-cli -h 10.0.139.202 -p 50003 cluster addslots 8192-12287
+redis-cli -h 10.0.139.202 -p 50004 cluster addslots 12288-16383
 
 ```
 
@@ -300,14 +308,14 @@ redis-cli -h 10.0.143.154 -p 50004 cluster addslots 12288-16383
 Puedes verificar que el clúster se ha configurado correctamente usando el siguiente comando:
 ```
 
-redis-cli -h 10.0.143.154 -p 50001 cluster info
+redis-cli -h 10.0.139.202 -p 50001 cluster info
 
 ```
 
 Verificar la asignación de slots:
 ```
 
-redis-cli -h 10.0.143.154 -p 50001 cluster slots
+redis-cli -h 10.0.139.202 -p 50001 cluster slots
 
 ```
 
