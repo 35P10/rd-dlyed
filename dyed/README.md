@@ -164,7 +164,7 @@ git clone https://github.com/35P10/rd-dlyed
 ```
 
 ```bash
-cd rd-dlyed/
+cd rd-dlyed/dyed
 ```
 
 ```bash
