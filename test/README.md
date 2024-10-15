@@ -65,15 +65,20 @@ Copiar los archivos .conf
 sudo mv redis-*.conf /etc/redis/
 ```
 
-Copiar los servicios:
-```bash
-sudo mv redis-*.service /etc/systemd/system/
-```
-
 Check:
 ```bash
 sudo ls /etc/redis/ -l
 ```
+
+Copiar los servicios:
+```bash
+sudo mv redis-*.service /etc/systemd/system/
+```
+Check:
+```bash
+sudo ls /etc/systemd/system/ -l
+```
+
 
 ## Configurar un Clúster de Redis
 
@@ -107,7 +112,31 @@ sudo redis-server /etc/redis/redis-replica-02.conf && \
 sudo redis-server /etc/redis/redis-master-03.conf && \
 sudo redis-server /etc/redis/redis-replica-03.conf && \
 sudo redis-server /etc/redis/redis-master-04.conf && \
-sudo redis-server /etc/redis/redis-replica-04.conf
+sudo redis-server /etc/redis/redis-replica-04.conf && \
+sudo redis-server /etc/redis/redis-master-05.conf && \
+sudo redis-server /etc/redis/redis-replica-05.conf && \
+sudo redis-server /etc/redis/redis-master-06.conf && \
+sudo redis-server /etc/redis/redis-replica-06.conf && \
+sudo redis-server /etc/redis/redis-master-07.conf && \
+sudo redis-server /etc/redis/redis-replica-07.conf && \
+sudo redis-server /etc/redis/redis-master-08.conf && \
+sudo redis-server /etc/redis/redis-replica-08.conf && \
+sudo redis-server /etc/redis/redis-master-09.conf && \
+sudo redis-server /etc/redis/redis-replica-09.conf && \
+sudo redis-server /etc/redis/redis-master-10.conf && \
+sudo redis-server /etc/redis/redis-replica-10.conf && \
+sudo redis-server /etc/redis/redis-master-11.conf && \
+sudo redis-server /etc/redis/redis-replica-11.conf && \
+sudo redis-server /etc/redis/redis-master-12.conf && \
+sudo redis-server /etc/redis/redis-replica-12.conf && \
+sudo redis-server /etc/redis/redis-master-13.conf && \
+sudo redis-server /etc/redis/redis-replica-13.conf && \
+sudo redis-server /etc/redis/redis-master-14.conf && \
+sudo redis-server /etc/redis/redis-replica-14.conf && \
+sudo redis-server /etc/redis/redis-master-15.conf && \
+sudo redis-server /etc/redis/redis-replica-15.conf && \
+sudo redis-server /etc/redis/redis-master-16.conf && \
+sudo redis-server /etc/redis/redis-replica-16.conf
 ```
 
 Si hay un error, revisa el log del nodo:
@@ -207,23 +236,123 @@ sudo systemctl start redis-replica-16.service
 ```bash
 redis-cli -h 10.0.136.127 -p 50001 --cluster create 10.0.136.127:50001 10.0.136.127:50002 10.0.136.127:50003 10.0.136.127:50004 10.0.136.127:50005 10.0.136.127:50006 10.0.136.127:50007 10.0.136.127:50008 10.0.136.127:50009 10.0.136.127:50010 10.0.136.127:50011 10.0.136.127:50012 10.0.136.127:50013 10.0.136.127:50014 10.0.136.127:50015 10.0.136.127:50016
 ```
+La salida debe parecese a
+```
+>>> Performing hash slots allocation on 16 nodes...
+Master[0] -> Slots 0 - 1023
+Master[1] -> Slots 1024 - 2047
+Master[2] -> Slots 2048 - 3071
+Master[3] -> Slots 3072 - 4095
+Master[4] -> Slots 4096 - 5119
+Master[5] -> Slots 5120 - 6143
+Master[6] -> Slots 6144 - 7167
+Master[7] -> Slots 7168 - 8191
+Master[8] -> Slots 8192 - 9215
+Master[9] -> Slots 9216 - 10239
+Master[10] -> Slots 10240 - 11263
+Master[11] -> Slots 11264 - 12287
+Master[12] -> Slots 12288 - 13311
+Master[13] -> Slots 13312 - 14335
+Master[14] -> Slots 14336 - 15359
+Master[15] -> Slots 15360 - 16383
+M: 64e9d64513025e5e7757f83d491e1d58f19113c2 10.0.136.127:50001
+   slots:[0-1023] (1024 slots) master
+M: 3929ba09af450d47a8ed75d8bb6362773c95d33d 10.0.136.127:50002
+   slots:[1024-2047] (1024 slots) master
+M: c13b538365c8eb5f83b0e58f728c3a4e3835c2fb 10.0.136.127:50003
+   slots:[2048-3071] (1024 slots) master
+M: 47376aed095929d6c9bc6e84f8f1e2984a3b0021 10.0.136.127:50004
+   slots:[3072-4095] (1024 slots) master
+M: f68e82ab0422e096a1a40300b19af2d3d133b0c9 10.0.136.127:50005
+   slots:[4096-5119] (1024 slots) master
+M: d2a21cea9757d72e3b356b8cadc8fc7aeba69d7a 10.0.136.127:50006
+   slots:[5120-6143] (1024 slots) master
+M: 712c2b84d629bc38840dd44c5b6836c7bedbf5ee 10.0.136.127:50007
+   slots:[6144-7167] (1024 slots) master
+M: 874c5a83b99f82aaac59d52ba11a69d0e27ccfe7 10.0.136.127:50008
+   slots:[7168-8191] (1024 slots) master
+M: dbbc6719d8ec6faff4d281b1bf2e4e738a688bbb 10.0.136.127:50009
+   slots:[8192-9215] (1024 slots) master
+M: 46308801bee2fe6b4c61d885dcb23575d8e62643 10.0.136.127:50010
+   slots:[9216-10239] (1024 slots) master
+M: 5a0b0413275b7721fa5ccf1c622b8d842438af06 10.0.136.127:50011
+   slots:[10240-11263] (1024 slots) master
+M: 51713f02ace132aa2848548824477b3f16f06ae9 10.0.136.127:50012
+   slots:[11264-12287] (1024 slots) master
+M: f81237fe69802f02bdf9cf61dbd06bfe1f814c61 10.0.136.127:50013
+   slots:[12288-13311] (1024 slots) master
+M: 30b56c20877e0fef303814dfcbf05614f7fe53b3 10.0.136.127:50014
+   slots:[13312-14335] (1024 slots) master
+M: 38a74174055e64b5d5ff545aadccea461ab9c1e1 10.0.136.127:50015
+   slots:[14336-15359] (1024 slots) master
+Can I set the above configuration? (type 'yes' to accept):
+```
+ingresar yes `yes`
+```
+Can I set the above configuration? (type 'yes' to accept): yes
+>>> Nodes configuration updated
+>>> Assign a different config epoch to each node
+>>> Sending CLUSTER MEET messages to join the cluster
+Waiting for the cluster to join
+........
+>>> Performing Cluster Check (using node 10.0.136.127:50001)
+M: 64e9d64513025e5e7757f83d491e1d58f19113c2 10.0.136.127:50001
+   slots:[0-1023] (1024 slots) master
+M: d2a21cea9757d72e3b356b8cadc8fc7aeba69d7a 10.0.136.127:50006
+   slots:[5120-6143] (1024 slots) master
+M: 47376aed095929d6c9bc6e84f8f1e2984a3b0021 10.0.136.127:50004
+   slots:[3072-4095] (1024 slots) master
+M: f68e82ab0422e096a1a40300b19af2d3d133b0c9 10.0.136.127:50005
+   slots:[4096-5119] (1024 slots) master
+M: 51713f02ace132aa2848548824477b3f16f06ae9 10.0.136.127:50012
+   slots:[11264-12287] (1024 slots) master
+M: c13b538365c8eb5f83b0e58f728c3a4e3835c2fb 10.0.136.127:50003
+   slots:[2048-3071] (1024 slots) master
+M: 5a0b0413275b7721fa5ccf1c622b8d842438af06 10.0.136.127:50011
+   slots:[10240-11263] (1024 slots) master
+M: 38a74174055e64b5d5ff545aadccea461ab9c1e1 10.0.136.127:50015
+   slots:[14336-15359] (1024 slots) master
+M: 30b56c20877e0fef303814dfcbf05614f7fe53b3 10.0.136.127:50014
+   slots:[13312-14335] (1024 slots) master
+M: 712c2b84d629bc38840dd44c5b6836c7bedbf5ee 10.0.136.127:50007
+   slots:[6144-7167] (1024 slots) master
+M: 3929ba09af450d47a8ed75d8bb6362773c95d33d 10.0.136.127:50002
+   slots:[1024-2047] (1024 slots) master
+M: 46308801bee2fe6b4c61d885dcb23575d8e62643 10.0.136.127:50010
+   slots:[9216-10239] (1024 slots) master
+M: dbbc6719d8ec6faff4d281b1bf2e4e738a688bbb 10.0.136.127:50009
+   slots:[8192-9215] (1024 slots) master
+M: f81237fe69802f02bdf9cf61dbd06bfe1f814c61 10.0.136.127:50013
+   slots:[12288-13311] (1024 slots) master
+M: 874c5a83b99f82aaac59d52ba11a69d0e27ccfe7 10.0.136.127:50008
+   slots:[7168-8191] (1024 slots) master
+M: 78ee96d30dfc2d9403f208997e05f836dd93a908 10.0.136.127:50016
+   slots:[15360-16383] (1024 slots) master
+[OK] All nodes agree about slots configuration.
+>>> Check for open slots...
+>>> Check slots coverage...
+[OK] All 16384 slots covered.
+```
+
+
+asignar esclavos
 
 ```bash
-redis-cli --cluster add-node 10.0.136.127:50017 10.0.132.78:50001 --cluster-slave
-redis-cli --cluster add-node 10.0.136.127:50018 10.0.132.78:50010 --cluster-slave
-redis-cli --cluster add-node 10.0.136.127:50019 10.0.132.78:50011 --cluster-slave
-redis-cli --cluster add-node 10.0.136.127:50020 10.0.132.78:50009 --cluster-slave
-redis-cli --cluster add-node 10.0.136.127:50021 10.0.132.78:50004 --cluster-slave
-redis-cli --cluster add-node 10.0.136.127:50022 10.0.132.78:50006 --cluster-slave
-redis-cli --cluster add-node 10.0.136.127:50023 10.0.132.78:50016 --cluster-slave
-redis-cli --cluster add-node 10.0.136.127:50024 10.0.132.78:50007 --cluster-slave
-redis-cli --cluster add-node 10.0.136.127:50025 10.0.132.78:50002 --cluster-slave
-redis-cli --cluster add-node 10.0.136.127:50026 10.0.132.78:50008 --cluster-slave
-redis-cli --cluster add-node 10.0.136.127:50027 10.0.132.78:50005 --cluster-slave
-redis-cli --cluster add-node 10.0.136.127:50028 10.0.132.78:50012 --cluster-slave
-redis-cli --cluster add-node 10.0.136.127:50029 10.0.132.78:50015 --cluster-slave
-redis-cli --cluster add-node 10.0.136.127:50030 10.0.132.78:50003 --cluster-slave
-redis-cli --cluster add-node 10.0.136.127:50031 10.0.132.78:50014 --cluster-slave
-redis-cli --cluster add-node 10.0.136.127:50032 10.0.132.78:50013 --cluster-slave
+redis-cli --cluster add-node 10.0.136.127:50017 10.0.136.127:50001 --cluster-slave
+redis-cli --cluster add-node 10.0.136.127:50018 10.0.136.127:50010 --cluster-slave
+redis-cli --cluster add-node 10.0.136.127:50019 10.0.136.127:50011 --cluster-slave
+redis-cli --cluster add-node 10.0.136.127:50020 10.0.136.127:50009 --cluster-slave
+redis-cli --cluster add-node 10.0.136.127:50021 10.0.136.127:50004 --cluster-slave
+redis-cli --cluster add-node 10.0.136.127:50022 10.0.136.127:50006 --cluster-slave
+redis-cli --cluster add-node 10.0.136.127:50023 10.0.136.127:50016 --cluster-slave
+redis-cli --cluster add-node 10.0.136.127:50024 10.0.136.127:50007 --cluster-slave
+redis-cli --cluster add-node 10.0.136.127:50025 10.0.136.127:50002 --cluster-slave
+redis-cli --cluster add-node 10.0.136.127:50026 10.0.136.127:50008 --cluster-slave
+redis-cli --cluster add-node 10.0.136.127:50027 10.0.136.127:50005 --cluster-slave
+redis-cli --cluster add-node 10.0.136.127:50028 10.0.136.127:50012 --cluster-slave
+redis-cli --cluster add-node 10.0.136.127:50029 10.0.136.127:50015 --cluster-slave
+redis-cli --cluster add-node 10.0.136.127:50030 10.0.136.127:50003 --cluster-slave
+redis-cli --cluster add-node 10.0.136.127:50031 10.0.136.127:50014 --cluster-slave
+redis-cli --cluster add-node 10.0.136.127:50032 10.0.136.127:50013 --cluster-slave
 ```
 
